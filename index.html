@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Target 1200 英単語クイズ</title>
+  <style>
+    :root { --bg:#f6f7fb; --card:#fff; --ink:#162033; --muted:#667085; --accent:#2563eb; --ok:#16a34a; --ng:#dc2626; --line:#e5e7eb; }
+    *{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink)}
+    .wrap{max-width:760px;margin:0 auto;padding:18px 14px 40px}.top{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:14px}
+    h1{font-size:20px;margin:0}.badge{font-size:13px;color:var(--muted)}.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px;box-shadow:0 8px 24px rgba(0,0,0,.05)}
+    .meta{display:flex;justify-content:space-between;color:var(--muted);font-size:14px;margin-bottom:10px}.word{text-align:center;font-size:44px;font-weight:800;letter-spacing:.3px;margin:22px 0 8px}.no{text-align:center;color:var(--muted);margin-bottom:18px}
+    .choices{display:grid;gap:10px}.choice{width:100%;border:1px solid var(--line);background:#fff;border-radius:14px;padding:15px 14px;font-size:18px;text-align:left;color:var(--ink)}
+    .choice:active{transform:scale(.99)}.choice.correct{border-color:var(--ok);background:#ecfdf3}.choice.wrong{border-color:var(--ng);background:#fef2f2}.choice:disabled{color:var(--ink);opacity:1}
+    .result{min-height:28px;margin:14px 0 4px;font-weight:700}.ok{color:var(--ok)}.ng{color:var(--ng)}
+    .controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}.controls button,.mode button{border:0;border-radius:14px;padding:13px;font-size:16px;font-weight:700;background:var(--accent);color:#fff}.controls .sub,.mode button{background:#eef2ff;color:#1e40af}.mode{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}.mode button.active{background:#1e40af;color:white}
+    .bar{height:10px;background:#e5e7eb;border-radius:99px;overflow:hidden;margin:14px 0}.bar>div{height:100%;background:var(--accent);width:0%}.small{font-size:13px;color:var(--muted);line-height:1.6;margin-top:14px} details{margin-top:18px} summary{cursor:pointer;color:#1e40af;font-weight:700}.list{font-size:14px;line-height:1.8;overflow:auto}.list table{border-collapse:collapse;width:100%;margin-top:8px}.list th,.list td{border-bottom:1px solid var(--line);padding:6px;text-align:left}.list th:first-child,.list td:first-child{text-align:right;color:var(--muted)}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top"><h1>Target 1200 英単語クイズ</h1><div class="badge">375〜426</div></div>
+    <div class="mode"><button id="allMode" class="active">全問モード</button><button id="missMode">間違えた単語</button></div>
+    <div class="card">
+      <div class="meta"><span id="count">0 / 0</span><span id="score">正解 0</span></div>
+      <div class="bar"><div id="bar"></div></div>
+      <div class="word" id="word">start</div><div class="no" id="no"></div>
+      <div class="choices" id="choices"></div>
+      <div class="result" id="result"></div>
+      <div class="controls"><button id="next">次の問題</button><button class="sub" id="reset">最初から</button></div>
+      <div class="small">英単語を見て、日本語の正解を選びます。間違えた単語はスマホ内に保存されます。</div>
+    </div>
+    <details><summary>単語リストを見る</summary><div class="list" id="wordList"></div></details>
+  </div>
+<script>
+const WORDS = [
+{no:375,en:'recover',ja:'回復する'},{no:376,en:'surround',ja:'囲む、取り囲む'},{no:377,en:'doubt',ja:'疑う'},{no:378,en:'display',ja:'展示する、陳列する'},{no:379,en:'announce',ja:'発表する'},{no:380,en:'support',ja:'支持する'},{no:381,en:'act',ja:'行動する'},{no:382,en:'repeat',ja:'繰り返す'},{no:383,en:'count',ja:'数える'},{no:384,en:'compare',ja:'比べる'},{no:385,en:'shine',ja:'輝く'},{no:386,en:'replace',ja:'〜に取って代わる'},
+{no:387,en:'reality',ja:'現実'},{no:388,en:'strength',ja:'力、強さ'},{no:389,en:'era',ja:'時代'},{no:390,en:'area',ja:'地域、区域'},{no:391,en:'respect',ja:'尊敬'},{no:392,en:'pressure',ja:'重圧'},{no:393,en:'pleasure',ja:'喜び、楽しみ'},{no:394,en:'favor',ja:'親切な行為'},{no:395,en:'statue',ja:'像'},{no:396,en:'limit',ja:'限度、限界'},{no:397,en:'bottom',ja:'下部、底'},{no:398,en:'position',ja:'立場'},{no:399,en:'memory',ja:'記憶、記憶力'},{no:400,en:'level',ja:'水準、レベル'},{no:401,en:'figure',ja:'数、数値'},{no:402,en:'direction',ja:'方向'},{no:403,en:'bit',ja:'少し、少量'},{no:404,en:'contrast',ja:'対比、差異'},{no:405,en:'religion',ja:'宗教'},{no:406,en:'harmony',ja:'調和、一致'},{no:407,en:'pattern',ja:'模様、図柄'},{no:408,en:'stage',ja:'段階'},{no:409,en:'degree',ja:'程度'},{no:410,en:'emergency',ja:'緊急'},{no:411,en:'origin',ja:'起源'},{no:412,en:'battle',ja:'戦闘'},{no:413,en:'enemy',ja:'敵'},{no:414,en:'note',ja:'メモ'},{no:415,en:'countryside',ja:'田舎'},{no:416,en:'contest',ja:'競技会、コンテスト'},{no:417,en:'sort',ja:'種類'},{no:418,en:'depth',ja:'深さ'},{no:419,en:'top',ja:'最高部、頂上'},{no:420,en:'theme',ja:'テーマ、主題'},{no:421,en:'sentence',ja:'文'},{no:422,en:'cycle',ja:'周期'},{no:423,en:'concept',ja:'概念'},{no:424,en:'rhythm',ja:'リズム'},{no:425,en:'tradition',ja:'伝統'},{no:426,en:'theory',ja:'理論、説'}
+];
+let mode='all', deck=[], index=0, correct=0, answered=false;
+const $=id=>document.getElementById(id); const shuffle=a=>a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(x=>x[1]);
+function misses(){return new Set(JSON.parse(localStorage.getItem('misses')||'[]'))} function saveMiss(no){const s=misses();s.add(no);localStorage.setItem('misses',JSON.stringify([...s]))} function clearMiss(no){const s=misses();s.delete(no);localStorage.setItem('misses',JSON.stringify([...s]))}
+function start(){const ms=misses(); deck=shuffle(mode==='miss'?WORDS.filter(w=>ms.has(w.no)):WORDS); index=0; correct=0; show();}
+function show(){answered=false;$('result').textContent=''; if(deck.length===0){$('word').textContent=mode==='miss'?'間違えた単語はありません':'単語がありません';$('no').textContent='';$('choices').innerHTML='';update();return} const w=deck[index]; $('word').textContent=w.en; $('no').textContent='No. '+w.no; const wrong=shuffle(WORDS.filter(x=>x.no!==w.no)).slice(0,3); const opts=shuffle([w,...wrong]); $('choices').innerHTML=''; opts.forEach(o=>{const b=document.createElement('button');b.className='choice';b.textContent=o.ja;b.onclick=()=>answer(b,o,w);$('choices').appendChild(b)}); update();}
+function answer(btn,o,w){if(answered)return; answered=true; document.querySelectorAll('.choice').forEach(b=>{b.disabled=true;if(b.textContent===w.ja)b.classList.add('correct')}); if(o.no===w.no){correct++; clearMiss(w.no); $('result').innerHTML='<span class="ok">正解！</span>'} else {btn.classList.add('wrong'); saveMiss(w.no); $('result').innerHTML='<span class="ng">不正解。</span> 正解は「'+w.ja+'」'} update();}
+function update(){const total=deck.length; $('count').textContent=total?`${Math.min(index+1,total)} / ${total}`:'0 / 0'; $('score').textContent=`正解 ${correct}`; $('bar').style.width=total?`${(index/total)*100}%`:'0%'}
+$('next').onclick=()=>{if(!deck.length)return; if(index<deck.length-1){index++;show()}else{$('word').textContent='終了！';$('no').textContent=`${deck.length}問中 ${correct}問正解`; $('choices').innerHTML='';$('result').textContent='おつかれさま！';$('bar').style.width='100%'}};
+$('reset').onclick=start; $('allMode').onclick=()=>{mode='all';$('allMode').classList.add('active');$('missMode').classList.remove('active');start()}; $('missMode').onclick=()=>{mode='miss';$('missMode').classList.add('active');$('allMode').classList.remove('active');start()};
+$('wordList').innerHTML='<table><tr><th>No.</th><th>English</th><th>日本語</th></tr>'+WORDS.map(w=>`<tr><td>${w.no}</td><td>${w.en}</td><td>${w.ja}</td></tr>`).join('')+'</table>';
+start();
+</script>
+</body>
+</html>
